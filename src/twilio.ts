@@ -13,7 +13,7 @@ const PHONE_NUMBER_USER = process.env.PHONE_NUMBER_USER || "";
 
 const client = Client(accountSid, authToken);
 
-const DISABLE_MESSAGING = process.env.DISABLE_MESSAGING || false;
+const DISABLE_MESSAGING = ("false" === process.env.DISABLE_MESSAGING)
 
 export enum MessageType {
   ADMIN,
@@ -26,12 +26,12 @@ export async function sendMessage(message: string, type: MessageType = MessageTy
   if (type === MessageType.USER) {
     numbers.push(PHONE_NUMBER_USER);
   }
-
-  log(`sending message to ${numbers.join(',')}: ${message}`);
   
   if (DISABLE_MESSAGING) {
+    log(`disabled! - sending message to ${numbers.join(',')}: ${message}`);
     return;
   }
+  log(`sending message to ${numbers.join(',')}: ${message}`);
 
   for (let number of numbers) {
     client.messages
