@@ -17,7 +17,7 @@ export type CampInformation = {
   detail_url: string;
 }
 
-type CampWeekMap = { [key: string]: CampInformation }
+export type CampWeekMap = { [key: string]: CampInformation }
 
 export const setCampCache = async function(data: CampWeekMap) {
   let camp = db.collection('camp')
@@ -25,7 +25,7 @@ export const setCampCache = async function(data: CampWeekMap) {
   await camp.set('miwok', data)
 }
 
-export const getCampCache = async function(){
+export async function getCampCache(): Promise<CampWeekMap> {
     let camp = db.collection('camp')
 
     return await camp.get('miwok')
