@@ -37,7 +37,7 @@ export async function sendMessage(message: string, type: MessageType = MessageTy
     client.messages
       .create({body: message, from: '+18666969018', to: number})
       .then(message => log(`twilio message id: ${message.sid}`))
-      .catch(err => log);
+      .catch(log);
   }
   
 

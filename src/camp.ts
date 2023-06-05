@@ -56,7 +56,7 @@ async function updateCampCache() {
   await setCampCache(map);
 }
 //updateCampCache().then(() => {getCampCache().then(console.log)})
-getCampCache().then(console.log)
+//getCampCache().then(console.log)
 export async function retrieveMiwokInformationByWeek(): Promise<CampInformation[]> {
   let data: CampInformation[];
   if (RETRIEVE_CACHED_PAGE) {
