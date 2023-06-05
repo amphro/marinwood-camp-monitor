@@ -4,7 +4,7 @@ import { log, logCache } from './log';
 import { MessageType, sendMessage } from './twilio';
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 function jsonToHtml(json: any) {
   if (Array.isArray(json)) {
