@@ -33,11 +33,13 @@ export async function sendMessage(message: string, type: MessageType = MessageTy
   }
   log(`sending message to ${numbers.join(',')}: ${message}`);
 
-  for (let number of numbers) {
-    client.messages
-      .create({body: message, from: '+18666969018', to: number})
-      .then(message => log(`twilio message id: ${message.sid}`))
-      .catch(log);
+  try {
+    for (let number of numbers) {
+      const messageRes = await client.messages.create({body: message, from: '+18666969018', to: number});
+      log(`twilio message id: ${messageRes.sid}`)
+    }
+  } catch (e: any) {
+    log(e && e.message || e);
   }
   
 

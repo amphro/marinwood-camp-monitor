@@ -48,7 +48,7 @@ async function retrieveAndReportWeeks(): Promise<CampWeekMap> {
 
   const entriesCache = await getCampCache();
   if (Object.values(entriesCache).length === 0) {
-    sendMessage(`Initiating weeks.`, MessageType.ADMIN);
+    await sendMessage(`Initiating weeks.`, MessageType.ADMIN);
   }
 
   const differences = [];
@@ -71,7 +71,7 @@ async function retrieveAndReportWeeks(): Promise<CampWeekMap> {
     entriesCache[key] = week;
   }
   if (differences.length > 0) {
-    sendMessage(`Changes detected:\n${differences.join('\n')}`)
+    await sendMessage(`Changes detected:\n${differences.join('\n')}`)
   }
   setCampCache(entriesCache)
   return entriesCache

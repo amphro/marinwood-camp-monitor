@@ -66,7 +66,7 @@ export async function retrieveMiwokInformationByWeek(): Promise<CampInformation[
     const response = await axios.post(ACTIVITIES_ENDPOINT, getActivityPostData());
 
     if (response.status !== 200) {
-      sendMessage(response.statusText + " " + response.data, MessageType.ADMIN);
+      await sendMessage(response.statusText + " " + response.data, MessageType.ADMIN);
       log(`${response.status} - ${response.status} - ${JSON.stringify(response.data)}`);
     }
     data = response.data.body.activity_items;
