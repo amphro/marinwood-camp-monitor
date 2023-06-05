@@ -28,7 +28,7 @@ export const setCampCache = async function(data: CampWeekMap) {
 export async function getCampCache(): Promise<CampWeekMap> {
     let camp = db.collection('camp')
 
-    return await camp.get('miwok')
+    return await camp.get('miwok') || {}
 }
 
 export async function retrieveMiwokInformationByWeek(): Promise<CampInformation[]> {
