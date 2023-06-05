@@ -8,10 +8,27 @@ const CACHE_PAGE_PATH = "./cache/camp.json";
 const CACHE_PAGE = false;
 const RETRIEVE_CACHED_PAGE = false
 
+const CyclicDB = require('@cyclic.sh/dynamodb')
+const db = CyclicDB('scarlet-foal-wearCyclicDB')
+
 export type CampInformation = {
   name: string;
   openings: number;
   detail_url: string;
+}
+
+type CampWeekMap = { [key: string]: CampInformation }
+
+export const setCampCache = async function(data: CampWeekMap) {
+  let camp = db.collection('camp')
+
+  await camp.set('miwok', data)
+}
+
+export const getCampCache = async function(){
+    let camp = db.collection('camp')
+
+    return await camp.get('miwok')
 }
 
 export async function retrieveMiwokInformationByWeek(): Promise<CampInformation[]> {

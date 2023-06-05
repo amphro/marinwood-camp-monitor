@@ -1,5 +1,5 @@
 import express from 'express';
-import { CampInformation, retrieveMiwokInformationByWeek } from './camp';
+import { CampInformation, getCampCache, retrieveMiwokInformationByWeek, setCampCache } from './camp';
 import { log, logCache } from './log';
 import { MessageType, sendMessage } from './twilio';
 
@@ -40,17 +40,18 @@ app.listen(port, () => {
   log(`Example app listening on port ${port}`)
 });
 
-type CampWeekMap = { [key: string]: CampInformation }
+
 
 const POLLING_INTERVAL = (process.env.POLLING_INTERVAL && !isNaN(parseInt(process.env.POLLING_INTERVAL)) && parseInt(process.env.POLLING_INTERVAL)) || 1000 * 60 * 5; // every 5 minutes
 
-let entriesCache: CampWeekMap = {};
+
 
 async function retrieveAndReportWeeks() {
   const miwokWeeks = await retrieveMiwokInformationByWeek();
 
   log(miwokWeeks.map(entry => entry.name + " has " + entry.openings + " openings").join('\n'));
 
+  const entriesCache = await getCampCache();
   if (Object.values(entriesCache).length === 0) {
     sendMessage(`Initiating weeks.`, MessageType.ADMIN);
   }
@@ -58,7 +59,7 @@ async function retrieveAndReportWeeks() {
   const differences = [];
   for (const week of miwokWeeks) {
     const key = week.name;
-
+    
     /// Only report differences if we have already seen the information before
     if (entriesCache[key]) {
       const oldOpenings = entriesCache[key].openings;
@@ -77,9 +78,10 @@ async function retrieveAndReportWeeks() {
   if (differences.length > 0) {
     sendMessage(`Changes detected:\n${differences.join('\n')}`)
   }
+  setCampCache(entriesCache)
 }
 
-log(`Starting polling at ${POLLING_INTERVAL} interval`);
-setInterval(retrieveAndReportWeeks, POLLING_INTERVAL);
+//log(`Starting polling at ${POLLING_INTERVAL} interval`);
+//setInterval(retrieveAndReportWeeks, POLLING_INTERVAL);
 
 
