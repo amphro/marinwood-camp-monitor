@@ -66,14 +66,28 @@ async function retrieveAndReportWeeks(): Promise<CampWeekMap> {
       const oldOpenings = entriesCache[key].openings;
       const newOpenings = week.openings;
       if (oldOpenings !== newOpenings) {
-        let message = `Availability for ${week.name} changed from ${oldOpenings} to ${newOpenings}.`
-        if (newOpenings > 0) {
-          message += ` Click to register: ${week.detail_url}`;
+        let message = '';
+        
+        if (newOpenings >= 1 && oldOpenings === 0) {
+          message = `${week.name} now has ${newOpenings} spot${newOpenings === 1 ? '' : 's'} open! Click to register: ${week.detail_url}`;
+          // Right now, only want when a spot becomes available, so just added it here
+          differences.push(message);
+        } else if (newOpenings === 0) {
+          message = `All spots were taken for ${week.name}`;
+        } else if (newOpenings < oldOpenings) {
+          message = `A spot in ${week.name} was taken.`;
+        } else if (oldOpenings < newOpenings) {
+          message = `Another spot opened for ${week.name}`;
         }
+        
         if (weeksToIgnore.includes(key)) {
           log(`Ignoring: ${message}`);
+        } else if (message) {
+          log(message);
+          // Only want new, so just moved this above.
+          // differences.push(message);
         } else {
-          differences.push(message);
+          log(`no message??? ${week.name} - oldOpening: ${oldOpenings} - newOpening: ${newOpenings}`);
         }
       }
     } 
@@ -81,7 +95,7 @@ async function retrieveAndReportWeeks(): Promise<CampWeekMap> {
     entriesCache[key] = week;
   }
   if (differences.length > 0) {
-    await sendMessage(`Changes detected:\n${differences.join('\n')}`)
+    await sendMessage(`${differences.join('\n')}`)
   }
   setCampCache(entriesCache)
   return entriesCache
