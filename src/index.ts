@@ -1,7 +1,9 @@
 import express from 'express';
-import { CampInformation, CampWeekMap, getCampCache, retrieveMiwokInformationByWeek, setCampCache } from './camp';
+import { retrieveMiwokInformationByWeek } from './camp';
+import { getCampCache, setCampCache } from './db';
 import { log, logCache } from './log';
 import { MessageType, sendMessage } from './twilio';
+import { CampWeekMap } from './types';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -41,10 +43,14 @@ app.listen(port, () => {
   log(`Example app listening on port ${port}`)
 });
 
+const weeksToIgnore = [
+  "Camp Miwok #9"
+]
+
 async function retrieveAndReportWeeks(): Promise<CampWeekMap> {
   const miwokWeeks = await retrieveMiwokInformationByWeek();
 
-  log(miwokWeeks.map(entry => entry.name + " has " + entry.openings + " openings").join('\n'));
+  log('\n' + miwokWeeks.map(entry => entry.name + " has " + entry.openings + " openings").join('\n'));
 
   const entriesCache = await getCampCache();
   if (Object.values(entriesCache).length === 0) {
@@ -64,7 +70,11 @@ async function retrieveAndReportWeeks(): Promise<CampWeekMap> {
         if (newOpenings > 0) {
           message += ` Click to register: ${week.detail_url}`;
         }
-        differences.push(message);
+        if (weeksToIgnore.includes(key)) {
+          log(`Ignoring: ${message}`);
+        } else {
+          differences.push(message);
+        }
       }
     } 
     // Update cache with new information

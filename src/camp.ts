@@ -2,61 +2,17 @@ import axios from "axios";
 import {readFileSync,writeFileSync} from "fs";
 import { log } from "./log";
 import { MessageType, sendMessage } from "./twilio";
-import CyclicDB from '@cyclic.sh/dynamodb'
+import { CampInformation } from "./types";
+
 
 const ACTIVITIES_ENDPOINT = "https://anc.apm.activecommunities.com/marinwood/rest/activities/list?locale=en-US";
 const CACHE_PAGE_PATH = "./cache/camp.json";
 const CACHE_PAGE = false;
 const RETRIEVE_CACHED_PAGE = false
 
-
-const db = CyclicDB('scarlet-foal-wearCyclicDB')
-
-export type CampInformation = {
-  name: string;
-  openings: number;
-  detail_url: string;
-}
-
-export type CampWeekMap = { [key: string]: CampInformation }
-
-export const setCampCache = async function(data: CampWeekMap) {
-  const camp = db.collection('camp')
-  const weeks = Object.values(data).map(week => ({
-    name: week.name,
-    detail_url: week.detail_url,
-    openings: week.openings
-  }))
-  //console.log(weeks)
-  await camp.set('miwok', {weeks});
-}
-
-export async function getCampCache(): Promise<CampWeekMap> {
-    let camp = db.collection('camp')
-
-    let data = await camp.get('miwok');
-    let weeks: CampWeekMap = {};
-
-    data.props && data.props.weeks && data.props.weeks.forEach((week: CampInformation) => {weeks[week.name] = week});
-
-    return weeks;
-}
-
-async function clearCampCache(): Promise<CampWeekMap> {
-  let camp = db.collection('camp')
-
-  return await camp.delete('miwok')
-}
-
-async function updateCampCache() {
-  const data = await retrieveMiwokInformationByWeek();
-  const map: CampWeekMap = {}
-
-  data.forEach((item) => {map[item.name] = item});
-  await setCampCache(map);
-}
-//updateCampCache().then(() => {getCampCache().then(console.log)})
+//updateCampCache(await retrieveMiwokInformationByWeek();).then(() => {getCampCache().then(console.log)})
 //getCampCache().then(console.log)
+
 export async function retrieveMiwokInformationByWeek(): Promise<CampInformation[]> {
   let data: CampInformation[];
   if (RETRIEVE_CACHED_PAGE) {
